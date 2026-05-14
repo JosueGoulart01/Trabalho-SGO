@@ -1,82 +1,139 @@
-# 📜 Histórias de Usuário - Sistema de Gestão Olímpica
-
-**Projeto:** Jogos Olímpicos 2028 | **Versão:** 3.0 | **Data:** 13/05/2026
-
+# 🏅 Sistema de Gestão Olímpica — Jogos Olímpicos 2028
+ 
+> **Versão:** 3.0 &nbsp;|&nbsp; **Data:** 13/05/2026 &nbsp;|&nbsp; **Status:** Em Desenvolvimento
+ 
+**Autores:** Maria Silva (Engenharia de Requisitos Sênior) · João Santos (Analista de Sistemas) · Ana Oliveira (Arquiteta de Software)
+ 
 ---
-
-## 🔐 Acesso e Segurança
-
+ 
+## 📑 Sumário
+ 
+1. [Visão Geral](#visão-geral)
+2. [Histórias de Usuário](#histórias-de-usuário)
+3. [Regras de Negócio](#regras-de-negócio)
+4. [Diagramas de Casos de Uso](#diagramas-de-casos-de-uso)
+   - [Parte 1 — Gestão de Competições e Inscrições](#parte-1--gestão-de-competições-e-inscrições)
+   - [Parte 2 — Resultados, Relatórios e Segurança](#parte-2--resultados-relatórios-e-segurança)
+5. [Diagrama de Classes](#diagrama-de-classes)
+6. [Diagrama de Componentes (AWS)](#diagrama-de-componentes-aws)
+7. [Diagrama de Implantação](#diagrama-de-implantação)
+8. [Rastreabilidade](#rastreabilidade)
+---
+ 
+## Visão Geral
+ 
+O **Sistema de Gestão Olímpica** é uma plataforma digital para orquestrar todas as operações dos Jogos Olímpicos 2028, abrangendo:
+ 
+- Cadastro de atletas, países, modalidades e locais de prova
+- Gestão completa do ciclo de competições (criação → inscrição → resultado)
+- Controle de acesso por perfil (Administrador, Árbitro, Delegação, Atleta, Público)
+- Relatórios de medalhas e quadro geral em tempo real
+- Arquitetura cloud-native na AWS com microsserviços, mensageria e serverless
+---
+ 
+## Histórias de Usuário
+ 
+### 🔐 Acesso e Segurança
+ 
 | ID | Ator | História |
 |:---:|:---|:---|
-| US12 | Usuário do sistema | Como **Usuário do sistema**, quero **autenticar-me com login e senha**, para que apenas perfis autorizados acessem funcionalidades restritas (cadastros, alocações e resultados). |
-| US13 | Administrador | Como **Administrador**, quero **cadastrar novos usuários definindo perfis de acesso** (Admin, Árbitro, Delegação), para que cada função tenha permissões adequadas ao seu papel. |
-| US14 | Usuário do sistema | Como **Usuário do sistema**, quero **recuperar minha senha por e-mail**, para que eu não perca o acesso em caso de esquecimento. |
-
----
-
-## 🏛️ Cadastros Básicos
-
+| US12 | Usuário do sistema | Autenticar-me com login e senha, para que apenas perfis autorizados acessem funcionalidades restritas. |
+| US13 | Administrador | Cadastrar novos usuários definindo perfis de acesso (Admin, Árbitro, Delegação). |
+| US14 | Usuário do sistema | Recuperar minha senha por e-mail em caso de esquecimento. |
+ 
+### 🏛️ Cadastros Básicos
+ 
 | ID | Ator | História |
 |:---:|:---|:---|
-| US04 | Administrador | Como **Administrador**, quero **cadastrar atletas e países participantes**, para que eles fiquem disponíveis para inscrição nas competições. |
-| US15 | Administrador | Como **Administrador**, quero **cadastrar locais de prova com capacidade máxima de público**, para que a ocupação seja controlada e a segurança garantida. |
-| US16 | Administrador | Como **Administrador**, quero **cadastrar modalidades esportivas com suas regras específicas** (ex: limite de atletas por país), para que o sistema valide as inscrições automaticamente. |
-
----
-
-## 📋 Gestão de Competições
-
+| US04 | Administrador | Cadastrar atletas e países participantes para inscrição nas competições. |
+| US15 | Administrador | Cadastrar locais de prova com capacidade máxima de público. |
+| US16 | Administrador | Cadastrar modalidades esportivas com suas regras específicas. |
+ 
+### 📋 Gestão de Competições
+ 
 | ID | Ator | História | RN |
-|:---:|:---|:---|---|
-| US01 | Administrador | Como **Administrador**, quero **cadastrar uma nova competição informando modalidade, data, horário e local**, para que o evento seja oficialmente programado na agenda olímpica. | RN1 |
-| US02 | Administrador | Como **Administrador**, quero **editar ou cancelar uma competição já cadastrada**, para que eu possa corrigir erros ou tratar imprevistos antes da realização da prova. | RN1 |
-| US03 | Administrador | Como **Administrador**, quero **alocar um local a uma competição garantindo que não haja conflito de horário com outro evento no mesmo local**, para que a infraestrutura seja utilizada sem sobreposições. | RN3 |
-| US17 | Administrador | Como **Administrador**, quero **definir a duração estimada de cada competição no momento do cadastro**, para que o sistema valide automaticamente conflitos de horário com maior precisão. | RN3 |
-| US18 | Administrador | Como **Administrador**, quero **reagendar em lote competições de uma mesma modalidade afetadas por condições climáticas**, para que eu não precise editar uma a uma em situações de emergência. | RN1 |
-
----
-
-## ✍️ Inscrições
-
+|:---:|:---|:---|:---:|
+| US01 | Administrador | Cadastrar nova competição informando modalidade, data, horário e local. | RN1 |
+| US02 | Administrador | Editar ou cancelar uma competição já cadastrada. | RN1 |
+| US03 | Administrador | Alocar local sem conflito de horário com outro evento. | RN3 |
+| US17 | Administrador | Definir duração estimada de cada competição no momento do cadastro. | RN3 |
+| US18 | Administrador | Reagendar em lote competições afetadas por condições climáticas. | RN1 |
+ 
+### ✍️ Inscrições
+ 
 | ID | Ator | História | RN |
-|:---:|:---|:---|---|
-| US05 | Atleta | Como **Atleta**, quero **me inscrever em uma competição representando o meu país**, para que eu possa participar oficialmente da modalidade. | RN2 |
-| US06 | Sistema | Como **Sistema**, quero **evitar que um mesmo atleta represente mais de um país em uma mesma modalidade**, para que a regra olímpica seja respeitada. | RN2 |
-| US11 | Atleta | Como **Atleta**, quero **visualizar minhas inscrições confirmadas e meus resultados**, para que eu acompanhe a participação nos jogos. | — |
-| US19 | Delegação | Como **Delegação**, quero **substituir um atleta inscrito por outro do mesmo país antes do início da prova**, para que eu possa lidar com lesões ou imprevistos de última hora. | RN2 |
-| US20 | Sistema | Como **Sistema**, quero **encerrar automaticamente as inscrições de uma competição 24 horas antes do seu início**, para que a lista de participantes esteja consolidada para a organização. | — |
-| US21 | Árbitro/Juiz | Como **Árbitro/Juiz**, quero **registrar a desclassificação de um atleta durante a prova**, para que o resultado reflita apenas os participantes que concluíram validamente. | RN4 |
-
----
-
-## 🏁 Resultados
-
+|:---:|:---|:---|:---:|
+| US05 | Atleta | Inscrever-me em uma competição representando meu país. | RN2 |
+| US06 | Sistema | Evitar que um mesmo atleta represente mais de um país em uma modalidade. | RN2 |
+| US11 | Atleta | Visualizar minhas inscrições confirmadas e resultados. | — |
+| US19 | Delegação | Substituir atleta inscrito por outro do mesmo país antes da prova. | RN2 |
+| US20 | Sistema | Encerrar automaticamente inscrições 24h antes do início. | — |
+| US21 | Árbitro/Juiz | Registrar desclassificação de atleta durante a prova. | RN4 |
+ 
+### 🏁 Resultados
+ 
 | ID | Ator | História | RN |
-|:---:|:---|:---|---|
-| US07 | Árbitro/Juiz | Como **Árbitro/Juiz**, quero **registrar o resultado de uma competição informando 1º, 2º e 3º lugares**, para que o pódio seja oficializado e as medalhas atribuídas. | RN4 |
-| US22 | Árbitro/Juiz | Como **Árbitro/Juiz**, quero **registrar empate em qualquer posição do pódio**, para que ambos os atletas recebam a mesma medalha oficialmente. | RN4 |
-| US23 | Administrador | Como **Administrador**, quero **retificar um resultado já homologado com justificativa e registro de auditoria**, para que correções por doping ou erro técnico sejam rastreáveis. | RN4 |
-
----
-
-## 📊 Relatórios e Consultas
-
+|:---:|:---|:---|:---:|
+| US07 | Árbitro/Juiz | Registrar resultado informando 1º, 2º e 3º lugares. | RN4 |
+| US22 | Árbitro/Juiz | Registrar empate em qualquer posição do pódio. | RN4 |
+| US23 | Administrador | Retificar resultado homologado com justificativa e auditoria. | RN4 |
+ 
+### 📊 Relatórios e Consultas
+ 
 | ID | Ator | História | RN |
-|:---:|:---|:---|---|
-| US08 | Administrador | Como **Administrador**, quero **gerar relatório de medalhas por país (ouro, prata e bronze)**, para que o desempenho de cada delegação seja divulgado de forma clara. | RN5 |
-| US09 | Público | Como **Público**, quero **consultar a programação das competições**, para que eu possa acompanhar dias, horários e locais dos eventos. | — |
-| US10 | Público | Como **Público**, quero **consultar o quadro geral de medalhas**, para que eu acompanhe em tempo real o desempenho dos países participantes. | RN5 |
-| US24 | Público | Como **Público**, quero **filtrar a programação por modalidade, data ou local**, para que eu encontre rapidamente os eventos do meu interesse. | — |
-
+|:---:|:---|:---|:---:|
+| US08 | Administrador | Gerar relatório de medalhas por país. | RN5 |
+| US09 | Público | Consultar a programação das competições. | — |
+| US10 | Público | Consultar o quadro geral de medalhas em tempo real. | RN5 |
+| US24 | Público | Filtrar programação por modalidade, data ou local. | — |
+ 
 ---
-
-## 🔗 Rastreabilidade
-
-| Regra de Negócio | Descrição | US |
+ 
+## Regras de Negócio
+ 
+| RN | Descrição | User Stories |
 |:---:|:---|:---:|
-| RN1 | Cadastro de competições com nome, data, horário, local e lista de inscritos | US01, US02, US18 |
-| RN2 | Atleta participa de várias competições, mas só representa um país por modalidade | US05, US06, US19 |
-| RN3 | Local só abriga uma competição por vez (sem conflito de horário) | US03, US17 |
-| RN4 | Registrar 1º, 2º e 3º lugares após a realização da prova | US07, US21, US22, US23 |
-| RN5 | Relatórios de medalhas com desempenho por país | US08, US10 |
+| **RN1** | Competição deve ter nome, data, horário, local e lista de inscritos | US01, US02, US18 |
+| **RN2** | Atleta pode participar de várias competições, mas só representa um país por modalidade | US05, US06, US19 |
+| **RN3** | Local só abriga uma competição por vez (sem conflito de horário) | US03, US17 |
+| **RN4** | Registrar 1º, 2º e 3º lugares após realização da prova | US07, US21, US22, US23 |
+| **RN5** | Relatórios de medalhas com desempenho por país | US08, US10 |
+ 
+---
 
+## Caso de Uso
+<img width="1565" height="1425" alt="casos-de-uso1" src="https://github.com/user-attachments/assets/54dddab1-2d29-47cc-b7a7-7dff13f21573" />
+
+<img width="945" height="1422" alt="casos-de-uso2" src="https://github.com/user-attachments/assets/30355bbc-0db0-4e96-84a8-c3d6f9a62f15" />
+
+## Diagrama de Classe/Pacotes
+
+<img width="2516" height="1597" alt="diagrama-de-classes-pacotes" src="https://github.com/user-attachments/assets/92ebbaee-777f-4201-88df-1fb795ed5cf0" />
+
+## Diagrama de Componentes
+
+<img width="1474" height="930" alt="componentes" src="https://github.com/user-attachments/assets/34843cd2-03a6-4233-aef2-2eb311da6017" />
+
+## Diagrama de Implantação
+
+<img width="993" height="1445" alt="implantacao" src="https://github.com/user-attachments/assets/a19c95b2-76ff-4dfa-8462-3ba69c1c0bc8" />
+
+---
+ 
+## Rastreabilidade
+ 
+| Regra de Negócio | Descrição | User Stories |
+|:---:|:---|:---:|
+| **RN1** | Cadastro de competições com nome, data, horário, local e lista de inscritos | US01, US02, US18 |
+| **RN2** | Atleta participa de várias competições, mas só representa um país por modalidade | US05, US06, US19 |
+| **RN3** | Local só abriga uma competição por vez (sem conflito de horário) | US03, US17 |
+| **RN4** | Registrar 1º, 2º e 3º lugares após a realização da prova | US07, US21, US22, US23 |
+| **RN5** | Relatórios de medalhas com desempenho por país | US08, US10 |
+ 
+---
+ 
+> 📌 **Como renderizar os diagramas PlantUML:**
+> - **Online:** [plantuml.com/plantuml/uml](https://www.plantuml.com/plantuml/uml/)
+> - **VS Code:** Extensão *PlantUML* (jebbs.plantuml)
+> - **IntelliJ / Eclipse:** Plugin PlantUML Integration
+> - **CLI:** `java -jar plantuml.jar README.md`
