@@ -1,0 +1,118 @@
+@startuml
+' ============================================================
+' SISTEMA DE GESTÃO OLÍMPICA - Jogos Olímpicos 2028
+' Diagrama de Componentes com Serviços AWS
+' Versão: 3.0 | Data: 13/05/2026
+' Autores: Maria Silva, João Santos, Ana Oliveira
+' ============================================================
+
+left to right direction
+
+title <b>Diagrama de Componentes - Sistema de Gestao Olimpica</b>\nArquitetura com Servicos AWS
+
+' ============================================================
+' Interface de Usuario
+' ============================================================
+package "Interface de Usuario" {
+    [Web App\nReact] as WebApp
+    [Mobile App\nFlutter] as MobileApp
+}
+
+' ============================================================
+' AWS Cloud
+' ============================================================
+package "AWS Cloud" {
+    
+    [API Gateway] as ApiGw
+    [Cognito\nAutenticacao] as Cognito
+    
+    package "Microservicos (ECS Fargate)" {
+        [Servico de\nInscricao] as SvcInscricao
+        [Servico de\nAlocacao] as SvcAlocacao
+        [Servico de\nResultado] as SvcResultado
+        [Servico de\nRelatorio] as SvcRelatorio
+    }
+    
+    package "Mensageria" {
+        queue "SQS\nNotificacoes" as SQSNotif
+        queue "SQS\nAuditoria" as SQSAudit
+    }
+    
+    package "Armazenamento" {
+        database "RDS\nPostgreSQL" as RDS
+        database "Redis\nCache" as Redis
+        storage "S3\nRelatorios" as S3
+    }
+    
+    package "Serverless" {
+        [Lambda\nNotificacoes] as LambdaNotif
+        [Lambda\nAgendador] as LambdaAgend
+    }
+}
+
+' ============================================================
+' Servicos Externos
+' ============================================================
+package "Servicos Externos" {
+    [Amazon SES\nEmail] as SES
+    [CloudWatch\nMonitoramento] as CloudWatch
+}
+
+' ============================================================
+' Conexoes - Frontend
+' ============================================================
+WebApp --> ApiGw : HTTPS
+MobileApp --> ApiGw : HTTPS
+
+' ============================================================
+' Conexoes - API Gateway
+' ============================================================
+ApiGw --> Cognito : Token
+ApiGw --> SvcInscricao : /inscricoes
+ApiGw --> SvcAlocacao : /competicoes
+ApiGw --> SvcResultado : /resultados
+ApiGw --> SvcRelatorio : /relatorios
+
+' ============================================================
+' Conexoes - Banco de Dados
+' ============================================================
+SvcInscricao --> RDS
+SvcAlocacao --> RDS
+SvcResultado --> RDS
+SvcRelatorio --> RDS
+
+' ============================================================
+' Conexoes - Cache
+' ============================================================
+SvcRelatorio --> Redis : Cache
+SvcAlocacao --> Redis : Cache
+
+' ============================================================
+' Conexoes - Mensageria
+' ============================================================
+SvcInscricao --> SQSNotif : Eventos
+SvcAlocacao --> SQSNotif : Eventos
+SvcResultado --> SQSNotif : Eventos
+SvcResultado --> SQSAudit : Auditoria
+
+SQSNotif --> LambdaNotif
+SQSAudit --> LambdaAgend
+
+LambdaNotif --> SES : Email
+LambdaAgend --> RDS : Log
+
+' ============================================================
+' Conexoes - S3 e CloudWatch
+' ============================================================
+SvcRelatorio --> S3 : PDF/CSV
+LambdaNotif --> CloudWatch : Logs
+LambdaAgend --> CloudWatch : Logs
+
+' ============================================================
+' Legenda
+' ============================================================
+legend right
+
+endlegend
+
+@enduml

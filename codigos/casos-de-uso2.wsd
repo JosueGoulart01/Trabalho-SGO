@@ -1,0 +1,117 @@
+@startuml
+' ============================================================
+' SISTEMA DE GESTÃO OLÍMPICA - Jogos Olímpicos 2028
+' Arquivo 2: Resultados, Relatórios e Segurança (US07 a US10, US12 a US14, US21 a US24)
+' Versão: 3.0 | Data: 13/05/2026
+' ============================================================
+' Autores:
+'   Maria Silva - Engenharia de Requisitos Sênior
+'   João Santos - Analista de Sistemas
+'   Ana Oliveira - Arquiteta de Software
+' ============================================================
+
+left to right direction
+
+title <b>Diagrama de Casos de Uso - Parte 2\nResultados, Relatorios e Seguranca</b>
+
+' ============================================================
+' Atores
+' ============================================================
+actor "Usuario" as Usuario
+actor "Administrador" as Admin
+actor "Arbitro / Juiz" as Arbitro
+actor "Publico" as Publico
+
+' ============================================================
+' Heranca
+' ============================================================
+Usuario <|-- Admin
+Usuario <|-- Arbitro
+
+' ============================================================
+' Pacote: Acesso e Seguranca
+' ============================================================
+package "Acesso e Seguranca" {
+    usecase "US12 - Autenticar-se\ncom login e senha" as US12
+    usecase "US13 - Cadastrar usuarios\ncom perfis de acesso" as US13
+    usecase "US14 - Recuperar senha\npor e-mail" as US14
+}
+
+' ============================================================
+' Pacote: Resultados
+' ============================================================
+package "Resultados" {
+    usecase "US07 - Registrar podio\n(1o, 2o e 3o lugares)" as US07
+    usecase "US21 - Registrar\ndesclassificacao" as US21
+    usecase "US22 - Registrar empate\nno podio" as US22
+    usecase "US23 - Retificar resultado\ncom auditoria" as US23
+}
+
+' ============================================================
+' Pacote: Relatorios e Consultas
+' ============================================================
+package "Relatorios e Consultas" {
+    usecase "US08 - Gerar relatorio de\nmedalhas por pais" as US08
+    usecase "US09 - Consultar programacao\ndas competicoes" as US09
+    usecase "US10 - Consultar quadro\ngeral de medalhas" as US10
+    usecase "US24 - Filtrar programacao\npor modalidade/data/local" as US24
+}
+
+' ============================================================
+' Associacoes: Atores x Casos de Uso
+' ============================================================
+
+Usuario --> US12
+Usuario --> US14
+
+Admin --> US13
+Admin --> US08
+Admin --> US23
+
+Arbitro --> US07
+Arbitro --> US21
+Arbitro --> US22
+
+Publico --> US09
+Publico --> US10
+Publico --> US24
+
+' ============================================================
+' Relacionamentos Include e Extend
+' ============================================================
+
+US08 ..> US10 : <<include>>
+
+US21 ..> US07 : <<extend>>
+US22 ..> US07 : <<extend>>
+US23 ..> US07 : <<extend>>
+US24 ..> US09 : <<extend>>
+
+' ============================================================
+' Notas Tecnicas
+' ============================================================
+
+note bottom of US23
+  <b>RN4 - Auditoria:</b>
+  Registra usuario, data/hora,
+  valor anterior e novo valor.
+end note
+
+' ============================================================
+' Legenda
+' ============================================================
+legend right
+  <b>Regras de Negocio:</b>
+  • RN4: Resultado: 1o, 2o e 3o lugares
+  • RN5: Relatorio: medalhas por pais
+  ==
+  <b>Autores:</b>
+  Maria Silva - Eng. Requisitos Senior
+  Joao Santos - Analista de Sistemas
+  Ana Oliveira - Arquiteta de Software
+  ==
+  <<include>> : Obrigatorio
+  <<extend>> : Opcional
+endlegend
+
+@enduml

@@ -1,0 +1,139 @@
+@startuml
+' ============================================================
+' SISTEMA DE GESTÃO OLÍMPICA - Jogos Olímpicos 2028
+' Arquivo 1: Gestão e Inscrições (US01 a US11, US17 a US20)
+' Versão: 3.0 | Data: 13/05/2026
+' ============================================================
+' Autores:
+'   Maria Silva - Engenharia de Requisitos Sênior
+'   João Santos - Analista de Sistemas
+'   Ana Oliveira - Arquiteta de Software
+' ============================================================
+
+left to right direction
+
+title <b>Diagrama de Casos de Uso - Parte 1\nGestao de Competicoes e Inscricoes</b>
+
+' ============================================================
+' Atores
+' ============================================================
+actor "Administrador" as Admin
+actor "Delegacao (CON)" as Deleg
+actor "Atleta" as Atleta
+actor "Sistema" as Sistema
+
+' ============================================================
+' Heranca
+' ============================================================
+Admin <|-- Deleg
+
+' ============================================================
+' Pacote: Cadastros Basicos
+' ============================================================
+package "Cadastros Basicos" {
+    usecase "US04 - Cadastrar atletas\ne paises participantes" as US04
+    usecase "US15 - Cadastrar locais\ncom capacidade maxima" as US15
+    usecase "US16 - Cadastrar modalidades\ncom regras especificas" as US16
+}
+
+' ============================================================
+' Pacote: Gestao de Competicoes
+' ============================================================
+package "Gestao de Competicoes" {
+    usecase "US01 - Cadastrar nova\ncompeticao" as US01
+    usecase "US02 - Editar ou cancelar\ncompeticao existente" as US02
+    usecase "US03 - Alocar local\nsem conflito de horario" as US03
+    usecase "US17 - Definir duracao\nestimada da prova" as US17
+    usecase "US18 - Reagendar competicoes\nem lote" as US18
+}
+
+' ============================================================
+' Pacote: Inscricoes
+' ============================================================
+package "Inscricoes" {
+    usecase "US05 - Inscrever-se em\numa competicao" as US05
+    usecase "US06 - Validar pais\npor modalidade" as US06
+    usecase "US11 - Visualizar inscricoes\nconfirmadas e resultados" as US11
+    usecase "US19 - Substituir atleta\nantes do inicio da prova" as US19
+    usecase "US20 - Encerrar inscricoes\nautomaticamente (24h)" as US20
+}
+
+' ============================================================
+' Associacoes: Atores x Casos de Uso
+' ============================================================
+
+Admin --> US04
+Admin --> US15
+Admin --> US16
+Admin --> US01
+Admin --> US02
+Admin --> US03
+Admin --> US17
+Admin --> US18
+
+Deleg --> US19
+Deleg --> US11
+
+Atleta --> US05
+Atleta --> US11
+
+Sistema --> US06
+Sistema --> US20
+
+' ============================================================
+' Relacionamentos Include e Extend
+' ============================================================
+
+US01 ..> US03 : <<include>>
+US01 ..> US17 : <<include>>
+US02 ..> US01 : <<extend>>
+US18 ..> US02 : <<extend>>
+US18 ..> US03 : <<include>>
+
+US05 ..> US06 : <<include>>
+US19 ..> US11 : <<include>>
+
+' ============================================================
+' Notas Tecnicas
+' ============================================================
+
+note top of US03
+  <b>RN3 - Conflito de Local:</b>
+  Um local so abriga uma
+  competicao por vez.
+  Erro: "Local [X] ja reservado
+  das [h1] as [h2]"
+end note
+
+note top of US06
+  <b>RN2 - Nacionalidade Unica:</b>
+  Atleta representa apenas
+  um pais em todas as
+  modalidades.
+end note
+
+note bottom of US20
+  <b>Automatizacao:</b>
+  Gatilho disparado 24 horas
+  antes do inicio da prova.
+end note
+
+' ============================================================
+' Legenda
+' ============================================================
+legend right
+  <b>Regras de Negocio:</b>
+  • RN1: Competicao: nome, data, horario, local, inscritos
+  • RN2: Atleta: varias competicoes, 1 pais
+  • RN3: Local: 1 competicao por vez
+  ==
+  <b>Autores:</b>
+  Maria Silva - Eng. Requisitos Senior
+  Joao Santos - Analista de Sistemas
+  Ana Oliveira - Arquiteta de Software
+  ==
+  <<include>> : Obrigatorio
+  <<extend>> : Opcional
+endlegend
+
+@enduml

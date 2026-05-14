@@ -1,0 +1,234 @@
+@startuml
+' ============================================================
+' SISTEMA DE GESTÃO OLÍMPICA - Jogos Olímpicos 2028
+' Diagrama de Classes com Pacotes
+' Versão: 3.0 | Data: 13/05/2026
+' Autores: Maria Silva, João Santos, Ana Oliveira
+' ============================================================
+
+left to right direction
+
+title <b>Diagrama de Classes - Sistema de Gestao Olimpica</b>
+
+' ============================================================
+' Pacote: Dominio
+' ============================================================
+package "dominio" {
+
+    class Pais {
+        - id: Long
+        - nome: String
+        - codigo: String
+        --
+        + getTotalMedalhas(): int
+    }
+
+    class Atleta {
+        - id: Long
+        - nome: String
+        - dataNascimento: Date
+        - genero: String
+        --
+        + validarNacionalidade(pais: Pais): boolean
+        + inscreverEmCompeticao(competicao: Competicao): Inscricao
+    }
+
+    class Modalidade {
+        - id: Long
+        - nome: String
+        - maxAtletasPorPais: int
+        --
+        + validarLimiteAtletas(pais: Pais): boolean
+    }
+
+    class Competicao {
+        - id: Long
+        - nome: String
+        - data: Date
+        - horarioInicio: Time
+        - status: StatusCompeticao
+        --
+        + alocarLocal(local: Local): void
+        + validarConflitoHorario(): boolean
+        + adicionarInscricao(inscricao: Inscricao): void
+        + cancelar(): void
+    }
+
+    enum StatusCompeticao {
+        PROGRAMADA
+        INSCRICOES_ABERTAS
+        INSCRICOES_ENCERRADAS
+        EM_ANDAMENTO
+        CONCLUIDA
+        CANCELADA
+    }
+
+    class Local {
+        - id: Long
+        - nome: String
+        - capacidadePublico: int
+        --
+        + verificarDisponibilidade(data: Date, horario: Time): boolean
+    }
+
+    class Inscricao {
+        - id: Long
+        - dataInscricao: Date
+        - status: StatusInscricao
+        --
+        + confirmar(): void
+        + cancelar(): void
+        + substituirAtleta(novoAtleta: Atleta): void
+    }
+
+    enum StatusInscricao {
+        PENDENTE
+        CONFIRMADA
+        CANCELADA
+        SUBSTITUIDA
+    }
+
+    class Resultado {
+        - id: Long
+        - dataRegistro: Date
+        - auditado: boolean
+        --
+        + definirPodio(ouro: Atleta, prata: Atleta, bronze: Atleta): void
+        + registrarEmpate(posicao: int, atletas: List<Atleta>): void
+        + registrarDesclassificacao(atleta: Atleta, motivo: String): void
+        + retificar(novosDados: Resultado, justificativa: String, usuario: Usuario): void
+    }
+
+    class Podio {
+        - primeiroLugar: Atleta
+        - segundoLugar: Atleta
+        - terceiroLugar: Atleta
+    }
+
+}
+
+' ============================================================
+' Pacote: Relatorio
+' ============================================================
+package "relatorio" {
+
+    class QuadroMedalhas {
+        - dataAtualizacao: Date
+        --
+        + atualizar(): void
+        + gerarRelatorio(): RelatorioMedalhas
+    }
+
+    class RelatorioMedalhas {
+        - dataGeracao: Date
+        - tipo: String
+        --
+        + exportarPDF(): void
+        + exportarCSV(): void
+    }
+
+}
+
+' ============================================================
+' Pacote: Seguranca
+' ============================================================
+package "seguranca" {
+
+    class Usuario {
+        - id: Long
+        - login: String
+        - senha: String
+        - email: String
+        - perfil: PerfilAcesso
+        - ativo: boolean
+        --
+        + autenticar(login: String, senha: String): boolean
+        + recuperarSenha(email: String): void
+        + temPermissao(funcionalidade: String): boolean
+    }
+
+    enum PerfilAcesso {
+        ADMINISTRADOR
+        DELEGACAO
+        ARBITRO
+        ATLETA
+    }
+
+}
+
+' ============================================================
+' Pacote: Notificacao
+' ============================================================
+package "notificacao" {
+
+    class Notificacao {
+        - id: Long
+        - mensagem: String
+        - tipo: TipoNotificacao
+        - dataEnvio: Date
+        - lida: boolean
+        --
+        + enviar(destinatario: Usuario): void
+    }
+
+    enum TipoNotificacao {
+        INSCRICAO_CONFIRMADA
+        COMPETICAO_CANCELADA
+        RESULTADO_REGISTRADO
+        SUBSTITUICAO_ATLETA
+        RECUPERACAO_SENHA
+    }
+
+}
+
+' ============================================================
+' Pacote: Auditoria
+' ============================================================
+package "auditoria" {
+
+    class LogAuditoria {
+        - id: Long
+        - usuario: Usuario
+        - acao: String
+        - entidade: String
+        - valorAnterior: String
+        - valorNovo: String
+        - dataHora: Date
+        --
+        + registrar(): void
+        + consultarPorPeriodo(inicio: Date, fim: Date): List<LogAuditoria>
+    }
+
+}
+
+' ============================================================
+' Relacionamentos
+' ============================================================
+
+Pais "1" -- "0..*" Atleta : representa
+Atleta "1" -- "0..*" Inscricao : realiza
+Modalidade "1" -- "0..*" Competicao : agrupa
+Competicao "1" -- "0..*" Inscricao : possui
+Competicao "1" -- "1" Local : alocada em
+Competicao "1" -- "0..1" Resultado : gera
+Resultado "1" -- "1" Podio : determina
+Resultado "0..*" -- "1" QuadroMedalhas : alimenta
+Usuario "1" -- "0..*" Notificacao : recebe
+Usuario "1" -- "0..*" LogAuditoria : gera
+
+' ============================================================
+' Dependencias entre Pacotes
+' ============================================================
+relatorio ..> dominio : import
+seguranca ..> dominio : import
+notificacao ..> seguranca : import
+auditoria ..> seguranca : import
+
+' ============================================================
+' Legenda
+' ============================================================
+legend right
+
+endlegend
+
+@enduml

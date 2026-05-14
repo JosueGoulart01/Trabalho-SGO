@@ -1,0 +1,108 @@
+@startuml
+' ============================================================
+' SISTEMA DE GESTÃO OLÍMPICA - Jogos Olímpicos 2028
+' Diagrama de Implantação
+' Versão: 3.0 | Data: 13/05/2026
+' Autores: Maria Silva, João Santos, Ana Oliveira
+' ============================================================
+
+title <b>Diagrama de Implantacao - Sistema de Gestao Olimpica</b>
+
+' ============================================================
+' Dispositivos
+' ============================================================
+node "PC\nAdministrador" as PCAdmin
+node "PC\nArbitro" as PCArbitro
+node "Smartphone\nAtleta" as PhoneAtleta
+node "Tablet\nPublico" as TabletPublico
+
+' ============================================================
+' AWS Cloud
+' ============================================================
+cloud "AWS Cloud" {
+
+    node "CloudFront\nCDN" as CDN
+    node "WAF\nFirewall" as WAF
+    node "API Gateway" as ApiGw
+    node "Cognito\nAutenticacao" as Cognito
+
+    node "ECS Fargate\nMicroservicos" as ECS {
+        component "Inscricao" as SvcInsc
+        component "Alocacao" as SvcAloc
+        component "Resultado" as SvcRes
+        component "Relatorio" as SvcRel
+    }
+
+    database "RDS\nPostgreSQL" as RDS
+    database "Redis\nCache" as Redis
+    queue "SQS\nMensageria" as SQS
+    node "Lambda" as Lambda
+    cloud "SES\nEmail" as SES
+    storage "S3\nRelatorios" as S3
+
+}
+
+' ============================================================
+' Conexoes - Dispositivos para AWS
+' ============================================================
+PCAdmin -- CDN : HTTPS
+PCArbitro -- CDN : HTTPS
+PhoneAtleta -- CDN : HTTPS
+TabletPublico -- CDN : HTTPS
+
+' ============================================================
+' Conexoes - Infraestrutura de Entrada
+' ============================================================
+CDN -- WAF
+WAF -- ApiGw
+ApiGw -- Cognito : Token
+
+' ============================================================
+' Conexoes - Microservicos
+' ============================================================
+ApiGw -- ECS
+
+' ============================================================
+' Conexoes - Banco de Dados
+' ============================================================
+SvcInsc -- RDS
+SvcAloc -- RDS
+SvcRes -- RDS
+SvcRel -- Redis : Cache
+SvcAloc -- Redis : Cache
+
+' ============================================================
+' Conexoes - Mensageria e Email
+' ============================================================
+SvcInsc -- SQS
+SvcAloc -- SQS
+SvcRes -- SQS
+SQS -- Lambda
+Lambda -- SES
+
+' ============================================================
+' Conexoes - Armazenamento
+' ============================================================
+SvcRel -- S3 : PDF/CSV
+
+' ============================================================
+' Legenda
+' ============================================================
+legend right
+  <b>Fluxo da Requisicao:</b>
+  1. Dispositivo acessa via HTTPS
+  2. CloudFront distribui o conteudo
+  3. WAF protege contra ataques
+  4. API Gateway roteia a requisicao
+  5. Cognito valida autenticacao
+  6. ECS processa a logica de negocio
+  7. RDS persiste os dados
+  8. Redis acelera consultas
+  9. SQS enfileira eventos assincronos
+  10. Lambda processa notificacoes
+  11. SES envia emails
+  12. S3 armazena relatorios exportados
+
+endlegend
+
+@enduml
